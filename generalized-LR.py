@@ -8,9 +8,17 @@ import matplotlib.pyplot as plt
 # 3 iterations with SO averaging
 #######################################################################################################################
 
+
+# 1. instead of bspline - take the mask of the scheme that I pick and extract alpha_i from it (-alpha_i ^-1  are the roots of the symbol)
+# 2. each iteration j I take weighted avg func  (input: a, b, alpha_i  output: (1/(1+alpha_i))* a + (alpha_i/(1+alpha_i))* b )
+# how to define s
+
+
 def main():
     d = 3  # dimension of matrix input data
     iterations = 3  # num of iterations for applying scheme
+    s = 1
+
 
     # prepare test data
     x = np.arange(-5, 6)
@@ -32,7 +40,7 @@ def main():
     # apply subdivision scheme and get refined values
     new_x, refined_vals = subdivision_schema(x, vals, iterations)
 
-    plot_data(new_x, refined_vals)
+    plot_data(x, new_x, refined_vals)
 
     return
 
@@ -79,11 +87,11 @@ def bspline_rules(vals, is_even_indices):
 
 
 def avg_func(a, b, w):
-    # return (1 - w) * a + w * b
-    return np.dot(a, expm(w * logm(np.dot(a.T, b))))
+    return (1 - w) * a + w * b
+    # return np.dot(a, expm(w * logm(np.dot(a.T, b))))
 
 
-def plot_data(new_x, refined_vals):
+def plot_data(x, new_x, refined_vals):
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
