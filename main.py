@@ -1,3 +1,4 @@
+from mpl_toolkits import mplot3d
 import numpy as np
 from scipy.linalg import expm, logm
 import matplotlib.pyplot as plt
@@ -53,7 +54,6 @@ def bspline_refinement(x, vals):
 
     # first refined point
     refined_x[0] = (x[0] + x[1])/2
-    # refined_vals[0, :, :] = bspline_rules(vals[0:3, :, :], is_even_indices=True)
     refined_vals[0, :, :] = bspline_rules(vals[0:, :, :], is_even_indices=False)
 
     for j in range(2, np.size(x)):

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 def main():
     d = 3  # dimension of matrix input data
-    iterations = 3  # num of iterations for applying scheme
+    iterations = 1  # num of iterations for applying scheme
     s = 1
 
 
@@ -61,29 +61,23 @@ def bspline_refinement(x, vals):
 
     # first refined point
     refined_x[0] = (x[0] + x[1])/2
-    # refined_vals[0, :, :] = bspline_rules(vals[0:3, :, :], is_even_indices=True)
-    refined_vals[0, :, :] = bspline_rules(vals[0:, :, :], is_even_indices=False)
+    refined_vals[0, :, :] = bspline_rules(vals[0:, :, :])
 
     for j in range(2, np.size(x)):
         current_index = 2 * (j - 1)
         # interpolation points
         refined_x[current_index-1] = x[j-1]
-        refined_vals[current_index-1, :, :] = bspline_rules(vals[j-2:, :, :], is_even_indices=True)
+        refined_vals[current_index-1, :, :] = bspline_rules(vals[j-1:, :, :])
         # new refined points
         refined_x[current_index] = (x[j-1] + x[j]) / 2
-        refined_vals[current_index, :, :] = bspline_rules(vals[j-1:, :, :], is_even_indices=False)
+        refined_vals[current_index, :, :] = bspline_rules(vals[j-1:, :, :])
 
     return refined_x, refined_vals
 
 
 # spline scheme from lecture 6
-def bspline_rules(vals, is_even_indices):
-    if is_even_indices:  # even indices
-        one_avg = avg_func(vals[0, :, :], vals[2, :, :], 0.5)
-        new_val = avg_func(vals[1, :, :], one_avg, 0.25)
-    else:  # odd indices
-        new_val = avg_func(vals[0, :, :], vals[1, :, :], 0.5)
-    return new_val
+def bspline_rules(vals):
+    return avg_func(vals[0, :, :], vals[1, :, :], 0.5)
 
 
 def avg_func(a, b, w):
