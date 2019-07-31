@@ -32,14 +32,14 @@ def main():
 
     # Input vals
 
-    if input_type == 'so': # SO(d) data
+    if input_type == 'so':  # SO(d) data
         mat_fixed = np.random.rand(d, d)
         mat_fixed = mat_fixed - mat_fixed.T
         for j in range(np.size(x)):
             mu = expm((x[j] / 2) * mat_fixed)
             vals[j, :, :] = np.dot(mu, mu)
 
-    elif input_type == 'spd': # SPD(d) data:
+    elif input_type == 'spd':  # SPD(d) data:
         mat_fixed = np.random.rand(d, d)
         mat_fixed = mat_fixed + mat_fixed.T
         for j in range(np.size(x)):
@@ -90,16 +90,16 @@ def sn_scheme_rules(vals, curr_alpha, is_even_indices):
     if is_even_indices:  # even indices
         new_val = vals[0, :, :]
     else:  # odd indices
-        new_val = avg_func(vals[0, :, :], vals[1, :, :], 0.5)
+        new_val = avg_func(vals[0, :, :], vals[1, :, :], curr_alpha)
     return new_val
 
 
-# def avg_func(a, b, alpha):
-#     return (1 / (1 + alpha)) * a + (alpha / (1 + alpha)) * b
+def avg_func(a, b, alpha):
+    return (1 / (1 + alpha)) * a + (alpha / (1 + alpha)) * b
 
 
-def avg_func(a, b, w):
-    return (1 - w) * a + w * b
+# def avg_func(a, b, w):
+#     return (1 - w) * a + w * b
 
 
 def plot_data(new_x, refined_vals):
