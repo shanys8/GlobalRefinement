@@ -1,106 +1,112 @@
+from mpl_toolkits import mplot3d
 import numpy as np
-from scipy.linalg import expm, logm
+from scipy.linalg import expm
 import matplotlib.pyplot as plt
 
 
 #######################################################################################################################
-# Running test data - sampled from continuous function a subdivision using Bspline with mask from lecture 6,
-# 3 iterations with SO averaging
-#######################################################################################################################
+# for Sn with n=1:
+# symbol is:  a(z) = z^-1 * (1/2 + z + (1/2)z^2)
+# roots are: z = -1
+# s = 1
 
-
-# 1. instead of bspline - take the mask of the scheme that I pick and extract alpha_i from it (-alpha_i ^-1  are the roots of the symbol)
-# 2. each iteration j I take weighted avg func  (input: a, b, alpha_i  output: (1/(1+alpha_i))* a + (alpha_i/(1+alpha_i))* b )
-# how to define s
+# for Sn with n=2:
+# symbol is:  a(z) = z^-3 * (1/4 + (1/3)z + (1/4)z^2+ (1/3)z^3 + (1/4)z^4+ (1/3)z^5 + (1/4)z^6)
+# roots are: z = -1 and rest of the roots are complex
+# s = 3
+# #######################################################################################################################
 
 
 def main():
     d = 3  # dimension of matrix input data
-    iterations = 1  # num of iterations for applying scheme
-    s = 1
+    iterations = 3  # num of iterations for applying scheme
+    input_type = 'so'
 
+    # Input for algorithm - try scheme Sn with n = 1
+    s = 1
+    alphas = [1]
 
     # prepare test data
     x = np.arange(-5, 6)
     vals = np.zeros((np.size(x), d, d))
 
-    # check range of rand
-    mat_fixed = np.random.rand(d, d)
+    # Input vals
 
-    # test
-    # mat_fixed = np.array([[0.5502,    0.2077,    0.2305], [0.6225,    0.3012,    0.8443], [0.5870,   0.4709,    0.1948]])
+    if input_type == 'so': # SO(d) data
+        mat_fixed = np.random.rand(d, d)
+        mat_fixed = mat_fixed - mat_fixed.T
+        for j in range(np.size(x)):
+            mu = expm((x[j] / 2) * mat_fixed)
+            vals[j, :, :] = np.dot(mu, mu)
 
-    mat_fixed = mat_fixed - mat_fixed.T
-
-    for j in range(np.size(x)):
-        mu = expm((x[j] / 2) * mat_fixed)
-        mu = np.dot(mu, mu)
-        vals[j, :, :] = mu
+    elif input_type == 'spd': # SPD(d) data:
+        mat_fixed = np.random.rand(d, d)
+        mat_fixed = mat_fixed + mat_fixed.T
+        for j in range(np.size(x)):
+            vals[j, :, :] = expm(abs(x[j]) * (np.dot(mat_fixed, mat_fixed) - mat_fixed))
 
     # apply subdivision scheme and get refined values
-    new_x, refined_vals = subdivision_schema(x, vals, iterations)
+    new_x, refined_vals = subdivision_schema(x, vals, iterations, alphas)
 
-    plot_data(x, new_x, refined_vals)
+    # TODO perform shift in s of indices
+
+    plot_data(new_x, refined_vals)
 
     return
 
 
-def subdivision_schema(x, vals, iterations):
+def subdivision_schema(x, vals, iterations, alphas):
     current_vals = vals
     current_x = x
 
     for _ in range(iterations):
-        current_x, current_vals = bspline_refinement(current_x, current_vals)
+        current_x, current_vals = sn_scheme_refinement(current_x, current_vals, alphas)
     return current_x, current_vals
 
 
-def bspline_refinement(x, vals):
+def sn_scheme_refinement(x, vals, alphas):
     new_len = (np.size(x) - 2) * 2 + 1
     refined_x = np.zeros(new_len)
     refined_vals = np.zeros((new_len, np.shape(vals)[1], np.shape(vals)[2]))
 
     # first refined point
     refined_x[0] = (x[0] + x[1])/2
-    refined_vals[0, :, :] = bspline_rules(vals[0:, :, :])
+    refined_vals[0, :, :] = sn_scheme_rules(vals[0:, :, :], alphas[0], is_even_indices=False)
 
     for j in range(2, np.size(x)):
-        current_index = 2 * (j - 1)
-        # interpolation points
-        refined_x[current_index-1] = x[j-1]
-        refined_vals[current_index-1, :, :] = bspline_rules(vals[j-1:, :, :])
-        # new refined points
-        refined_x[current_index] = (x[j-1] + x[j]) / 2
-        refined_vals[current_index, :, :] = bspline_rules(vals[j-1:, :, :])
+        for alpha in alphas:
+            current_index = 2 * (j - 1)
+            # interpolation points
+            refined_x[current_index-1] = x[j-1]
+            refined_vals[current_index-1, :, :] = sn_scheme_rules(vals[j-1:, :, :], alpha, is_even_indices=True)
+            # new refined points
+            refined_x[current_index] = (x[j-1] + x[j]) / 2
+            refined_vals[current_index, :, :] = sn_scheme_rules(vals[j-1:, :, :], alpha, is_even_indices=False)
 
     return refined_x, refined_vals
 
 
-# spline scheme from lecture 6
-def bspline_rules(vals):
-    return avg_func(vals[0, :, :], vals[1, :, :], 0.5)
+def sn_scheme_rules(vals, curr_alpha, is_even_indices):
+    if is_even_indices:  # even indices
+        new_val = vals[0, :, :]
+    else:  # odd indices
+        new_val = avg_func(vals[0, :, :], vals[1, :, :], 0.5)
+    return new_val
+
+
+# def avg_func(a, b, alpha):
+#     return (1 / (1 + alpha)) * a + (alpha / (1 + alpha)) * b
 
 
 def avg_func(a, b, w):
     return (1 - w) * a + w * b
-    # return np.dot(a, expm(w * logm(np.dot(a.T, b))))
 
 
-def plot_data(x, new_x, refined_vals):
+def plot_data(new_x, refined_vals):
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-
     n = np.size(new_x)
-    # x, y, z = new_x, np.zeros(n), np.zeros(n)
-
-    # # Color by azimuthal angle
-    # c = np.arctan2(v, u)
-    # # Flatten and normalize
-    # c = (c.ravel() - c.min()) / c.ptp()
-    # # Repeat for each body line and two head lines
-    # c = np.concatenate((c, np.repeat(c, 2)))
-    # # Colormap
-    # c = plt.cm.hsv(c)
 
     for j in range(n):
         ax.quiver(new_x[j], 0, 0, refined_vals[j][0][0], refined_vals[j][1][0], refined_vals[j][2][0], length=0.02, color='blue', normalize=True)

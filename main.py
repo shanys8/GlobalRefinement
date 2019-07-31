@@ -16,13 +16,9 @@ def main():
     # prepare test data
     x = np.arange(-5, 6)
     vals = np.zeros((np.size(x), d, d))
-
-    # check range of rand
     mat_fixed = np.random.rand(d, d)
-
     # test
     # mat_fixed = np.array([[0.5502,    0.2077,    0.2305], [0.6225,    0.3012,    0.8443], [0.5870,   0.4709,    0.1948]])
-
     mat_fixed = mat_fixed - mat_fixed.T
 
     for j in range(np.size(x)):
