@@ -86,6 +86,7 @@ def sn_scheme_refinement(x, vals, alphas):
     return refined_x, refined_vals
 
 
+# do we need to split into even and odd ?
 def sn_scheme_rules(vals, curr_alpha, is_even_indices):
     if is_even_indices:  # even indices
         new_val = vals[0, :, :]
