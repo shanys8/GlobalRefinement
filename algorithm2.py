@@ -20,7 +20,6 @@ import matplotlib.pyplot as plt
 def main():
     d = 3  # dimension of matrix input data
     iterations = 3  # num of iterations for applying scheme
-    input_type = 'so'
 
     # Input for algorithm - try scheme Sn with n = 1
     s = 1
@@ -30,20 +29,12 @@ def main():
     x = np.arange(-5, 6)
     vals = np.zeros((np.size(x), d, d))
 
-    # Input vals
-
-    if input_type == 'so':  # SO(d) data
-        mat_fixed = np.random.rand(d, d)
-        mat_fixed = mat_fixed - mat_fixed.T
-        for j in range(np.size(x)):
-            mu = expm((x[j] / 2) * mat_fixed)
-            vals[j, :, :] = np.dot(mu, mu)
-
-    elif input_type == 'spd':  # SPD(d) data:
-        mat_fixed = np.random.rand(d, d)
-        mat_fixed = mat_fixed + mat_fixed.T
-        for j in range(np.size(x)):
-            vals[j, :, :] = expm(abs(x[j]) * (np.dot(mat_fixed, mat_fixed) - mat_fixed))
+    # Input vals - SO(d) data
+    mat_fixed = np.random.rand(d, d)
+    mat_fixed = mat_fixed - mat_fixed.T
+    for j in range(np.size(x)):
+        mu = expm((x[j] / 2) * mat_fixed)
+        vals[j, :, :] = np.dot(mu, mu)
 
     # apply subdivision scheme and get refined values
     new_x, refined_vals = subdivision_schema(x, vals, iterations, alphas)
@@ -86,7 +77,6 @@ def sn_scheme_refinement(x, vals, alphas):
     return refined_x, refined_vals
 
 
-# do we need to split into even and odd ?
 def sn_scheme_rules(vals, curr_alpha, is_even_indices):
     if is_even_indices:  # even indices
         new_val = vals[0, :, :]
@@ -97,10 +87,6 @@ def sn_scheme_rules(vals, curr_alpha, is_even_indices):
 
 def avg_func(a, b, alpha):
     return (1 / (1 + alpha)) * a + (alpha / (1 + alpha)) * b
-
-
-# def avg_func(a, b, w):
-#     return (1 - w) * a + w * b
 
 
 def plot_data(new_x, refined_vals):
