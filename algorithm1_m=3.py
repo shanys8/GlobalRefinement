@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 
 #######################################################################################################################
-# Running test data - sampled from continuous function a subdivision using Bspline with mask from lecture 6,
-# 3 iterations with SO averaging
+# Running test data - sampled from continuous function a subdivision using Bspline with m=3
+# 3 iterations with input SO data and avg func of SO mean
 #######################################################################################################################
 
 def main():
@@ -17,8 +17,6 @@ def main():
     x = np.arange(-5, 6)
     vals = np.zeros((np.size(x), d, d))
     mat_fixed = np.random.rand(d, d)
-    # test
-    # mat_fixed = np.array([[0.5502,    0.2077,    0.2305], [0.6225,    0.3012,    0.8443], [0.5870,   0.4709,    0.1948]])
     mat_fixed = mat_fixed - mat_fixed.T
 
     for j in range(np.size(x)):
@@ -64,7 +62,6 @@ def bspline_refinement(x, vals):
     return refined_x, refined_vals
 
 
-# spline scheme from lecture 6
 def bspline_rules(vals, is_even_indices):
     if is_even_indices:  # even indices
         one_avg = avg_func(vals[0, :, :], vals[2, :, :], 0.5)
@@ -85,16 +82,6 @@ def plot_data(new_x, refined_vals):
     ax = fig.gca(projection='3d')
 
     n = np.size(new_x)
-    # x, y, z = new_x, np.zeros(n), np.zeros(n)
-
-    # # Color by azimuthal angle
-    # c = np.arctan2(v, u)
-    # # Flatten and normalize
-    # c = (c.ravel() - c.min()) / c.ptp()
-    # # Repeat for each body line and two head lines
-    # c = np.concatenate((c, np.repeat(c, 2)))
-    # # Colormap
-    # c = plt.cm.hsv(c)
 
     for j in range(n):
         ax.quiver(new_x[j], 0, 0, refined_vals[j][0][0], refined_vals[j][1][0], refined_vals[j][2][0], length=0.02, color='blue', normalize=True)
