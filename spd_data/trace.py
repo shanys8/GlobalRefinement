@@ -6,21 +6,18 @@ from numpy.linalg import inv, matrix_power
 
 #######################################################################################################################
 # Running test data - sampled from continuous function a subdivision using Bspline with m=3
-# 3 iterations with input SPD data and avg func of SO mean
+# input SPD data and avg func of ALM mean - draw matrix trace from each refined value
 #######################################################################################################################
 
 
 def main():
     d = 3  # dimension of matrix input data
-    iterations = 4  # num of iterations for applying scheme
+    iterations = 3  # num of iterations for applying scheme
 
     # prepare test SPD(d) data
     x = np.arange(-5, 6)
     vals = np.zeros((np.size(x), d, d))
     mat_fixed = np.random.rand(d, d)
-    # test
-    mat_fixed = np.array([[0.5502,    0.2077,    0.2305], [0.6225,    0.3012,    0.8443], [0.5870,   0.4709,    0.1948]])
-
     mat_fixed = mat_fixed + mat_fixed.T
     for j in range(np.size(x)):
         vals[j, :, :] = expm(abs(x[j]) * (np.dot(mat_fixed, mat_fixed) - mat_fixed))

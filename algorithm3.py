@@ -5,10 +5,7 @@ import matplotlib.pyplot as plt
 
 
 #######################################################################################################################
-# for Sn with n=2:
-# symbol is:  a(z) = z^-3 * (1/4 + (1/3)z + (1/4)z^2+ (1/3)z^3 + (1/4)z^4+ (1/3)z^5 + (1/4)z^6)
-# roots are: z = -1 and rest of the roots are complex
-# s = 3
+# Algorithm 3 with real and complex values
 # #######################################################################################################################
 
 
@@ -17,7 +14,6 @@ def main():
     iterations = 1  # num of iterations for applying scheme
     input_type = 'so'
 
-    # Input for algorithm - try scheme Sn with n = 1
     s = 3
     real_alphas = [1]
     complex_alphas = [1+1j]   # TODO insert right values of roots -  -(root)^-1  ?
@@ -27,7 +23,6 @@ def main():
     vals = np.zeros((np.size(x), d, d))
 
     # Input vals
-
     if input_type == 'so':  # SO(d) data
         mat_fixed = np.random.rand(d, d)
         mat_fixed = mat_fixed - mat_fixed.T
@@ -65,7 +60,7 @@ def sn_scheme_refinement(x, vals, real_alphas, complex_alphas):
     refined_x = np.zeros(new_len)
     refined_vals = np.zeros((new_len, np.shape(vals)[1], np.shape(vals)[2]))
 
-    # iterations on the real alpha values
+    # iterations on the *real* alpha values
     refined_x[0] = (x[0] + x[1])/2
     refined_vals[0, :, :] = sn_scheme_rules(vals[0:, :, :], real_alphas[0], is_even_indices=False)
 
@@ -79,7 +74,7 @@ def sn_scheme_refinement(x, vals, real_alphas, complex_alphas):
             refined_x[current_index] = (x[j-1] + x[j]) / 2
             refined_vals[current_index, :, :] = sn_scheme_rules(vals[j-1:, :, :], alpha, is_even_indices=False)
 
-    # iterations on the complex alpha values
+    # iterations on the *complex* alpha values
     refined_x[0] = (x[0] + x[1])/2
     refined_vals[0, :, :] = sn_scheme_rules(vals[0:, :, :], complex_alphas[0])
 
@@ -108,27 +103,27 @@ def complex_sn_scheme_rules(vals, curr_alpha):
 
 
 def calculate_w1(alpha):
-    return 0
+    return 1 / (1 + 2 * np.real(alpha) + np.power(np.absolute(alpha), 2))
 
 
 def calculate_w2(alpha):
-    return 0
+    return 2 * np.real(alpha) / (1 + 2 * np.real(alpha) + np.power(np.absolute(alpha), 2))
 
 
 def calculate_w3(alpha):
-    return 0
+    return np.power(np.absolute(alpha), 2) / (1 + 2 * np.real(alpha) + np.power(np.absolute(alpha), 2))
 
 
 def calculate_r(alpha):
-    return 0
+    return 1 / (1 + np.absolute(alpha))
 
 
 def calculate_t1(w1, r):
-    return 0
+    return w1 / r
 
 
 def calculate_t2(w3, r):
-    return 0
+    return 1 - w3 / (1-r)
 
 
 def pyramid(p1, p2, p3, w1, w2, w3, alpha):
@@ -151,23 +146,8 @@ def avg_func(a, b, alpha):
     return (1 / (1 + alpha)) * a + (alpha / (1 + alpha)) * b
 
 
-# def avg_func(a, b, w):
-#     return (1 - w) * a + w * b
-
-
 def plot_data(new_x, refined_vals):
-
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    n = np.size(new_x)
-
-    for j in range(n):
-        ax.quiver(new_x[j], 0, 0, refined_vals[j][0][0], refined_vals[j][1][0], refined_vals[j][2][0], length=0.02, color='blue', normalize=True)
-        ax.quiver(new_x[j], 0, 0, refined_vals[j][0][1], refined_vals[j][1][1], refined_vals[j][2][1], length=0.02, color='red', normalize=True)
-        ax.quiver(new_x[j], 0, 0, refined_vals[j][0][2], refined_vals[j][1][2], refined_vals[j][2][2], length=0.02, color='green', normalize=True)
-
-    plt.show()
-
+    # TODO by the structure of data
     return
 
 
