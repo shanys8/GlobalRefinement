@@ -15,7 +15,7 @@ import colorsys
 
 def main():
     d = 2  # dimension of matrix input data
-    iterations = 10  # num of iterations for applying scheme
+    iterations = 2  # num of iterations for applying scheme
 
     # prepare test SPD(d) data
     x = np.arange(-5, 6)
