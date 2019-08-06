@@ -17,22 +17,6 @@ import colorsys
 
 def main():
 
-    fig, ax = plt.subplots(subplot_kw={'aspect': 'equal'})
-
-    d = 2  # dimension of matrix input data
-
-    # p1 = np.array([[1, 2], [3, 4]])
-    #
-    # p1 = make_spd_matrix(2)
-    # p2 = np.rot90(p1, k=1, axes=(1,0))
-
-    p1 = np.array([[2.36691593, 0.47362613], [0.47362613, 0.43641888]])
-    # p2 = np.rot90(p1, k=1, axes=(1,0))
-
-    rotation_mat = np.array([[0, -1], [1, 0]])
-
-    p2 = np.dot(p1, rotation_mat)
-
     p1 = make_spd_matrix(2)
     p2 = make_spd_matrix(2)
     p3 = avg_func(p1, p2, 0.5)
@@ -113,10 +97,6 @@ def plot_data(p1, p2, p3):
     ellipse.set_alpha(0.2)
     ax.add_artist(ellipse)
 
-    ax.set_xlim(np.maximum(np.amin(center_x), -100) - 2, np.minimum(np.amax(center_x), 100) + 2)
-    ax.set_ylim(np.maximum(np.amin(center_y), -100) - 2, np.minimum(np.amax(center_y), 100) + 2)
-
-
     # Compute eigenvalues and associated eigenvectors
     vals, vecs = np.linalg.eigh(p3)
 
@@ -131,7 +111,7 @@ def plot_data(p1, p2, p3):
     ax.tick_params(axis='both', which='major', labelsize=20)
     ellipse = Ellipse([vals[0], vals[1]], w, h, theta)
     ellipse.set_clip_box(ax.bbox)
-    ellipse.set_facecolor([0.38, 0, 0.48])
+    ellipse.set_facecolor([0, 1, 0])
     ellipse.set_alpha(0.2)
     ax.add_artist(ellipse)
 
